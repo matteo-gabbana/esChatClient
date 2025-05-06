@@ -11,23 +11,11 @@ public class Client {
 
     private static InetAddress host;
     private static final int PORTA = 5959;
-    private static String username;
 
     public static void main(String[] args) {
 
-        //selezioneUsername();
         hostSetup();
         contattaServer();
-    }
-
-    private static void selezioneUsername() {
-
-        Scanner usernameInput = new Scanner(System.in);
-
-        System.out.print("Inserisci il tuo username (tutto maiuscolo): ");
-        username = usernameInput.nextLine().toUpperCase();
-
-        System.out.println("\n=======================\n\n");
     }
 
     private static void hostSetup() {
@@ -42,46 +30,43 @@ public class Client {
 
     private static void contattaServer() {
 
-        Socket connessione = null;
-
         try {
 
-            connessione = new Socket(host, PORTA);
-
+            Socket connessione = new Socket(host, PORTA);
             Scanner input = new Scanner(connessione.getInputStream());
             PrintWriter output = new PrintWriter(connessione.getOutputStream(), true);
-
             Scanner tastiera = new Scanner(System.in);
 
-            String messaggio;
-            String risposta;
-            do {
+            Thread ricezione = new Thread(() -> {
+                while (true) {
+                    if (input.hasNextLine()) {
+                        String messaggioRicevuto = input.nextLine();
+                        System.out.println(messaggioRicevuto);
+                    }
+                }
+            });
+            ricezione.start();
 
-                //System.out.print("<< ");
-                messaggio = tastiera.nextLine();
+            while (true) {
+
+                String messaggio = tastiera.nextLine();
                 output.println(messaggio);
 
-                risposta = input.nextLine();
-                //System.out.println(">> " + risposta);
-                System.out.println(risposta);
+                if (messaggio.equals("STOP")) {
+                    break;
+                }
+            }
 
-            } while (!messaggio.equals("STOP"));
+            System.out.println("\n### Chiusura connessione in corso... ###");
+            ricezione.interrupt();
 
         } catch (IOException e) {
-
             e.printStackTrace();
-
-        } finally {
-
-            try {
-                System.out.println("\n### Chiusura connessione in corso... ###");
-                connessione.close();
-                System.out.println("### Connessione chiusa con successo! ###\n");
-            } catch (IOException e) {
-                System.out.println("### Impossibile chiudere la connessione! ###");
-                System.exit(1);
-            }
         }
+
+        System.out.println("### Connessione chiusa con successo! ###");
+        System.exit(0);
     }
+
 
 }
