@@ -37,15 +37,7 @@ public class Client {
             PrintWriter output = new PrintWriter(connessione.getOutputStream(), true);
             Scanner tastiera = new Scanner(System.in);
 
-            Thread ricezione = new Thread(() -> {
-                while (true) {
-                    if (input.hasNextLine()) {
-                        String messaggioRicevuto = input.nextLine();
-                        System.out.println(messaggioRicevuto);
-                    }
-                }
-            });
-            ricezione.start();
+            Ricezione ricezione = new Ricezione(input);
 
             while (true) {
 

@@ -26,7 +26,7 @@ public class Server {
         GestoreClient[] clients = new GestoreClient[2];
 
         System.out.println("### In attesa di 2 client per avviare la chat... ###\n");
-        while (clientConnessi != 2) {
+        while (clientConnessi < 2) {
             try {
                 connessione = server.accept();
                 clients[clientConnessi] = new GestoreClient(connessione, clients);
