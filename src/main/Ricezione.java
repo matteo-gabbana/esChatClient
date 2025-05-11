@@ -7,6 +7,7 @@ public class Ricezione extends Thread {
     Scanner input;
 
     public Ricezione(Scanner input) {
+
         this.input = input;
         this.start();
     }

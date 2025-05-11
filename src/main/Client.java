@@ -9,6 +9,9 @@ import java.util.Scanner;
 
 public class Client {
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+
     private static InetAddress host;
     private static final int PORTA = 5959;
 
@@ -19,17 +22,15 @@ public class Client {
     }
 
     private static void hostSetup() {
-
         try {
             host = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            System.out.println("### ID host non trovato... ###");
+            System.err.println("### ID host non trovato... ###");
             System.exit(1);
         }
     }
 
     private static void contattaServer() {
-
         try {
 
             Socket connessione = new Socket(host, PORTA);
@@ -49,16 +50,15 @@ public class Client {
                 }
             }
 
-            System.out.println("\n### Chiusura connessione in corso... ###");
+            System.out.println(ANSI_BLUE + "\n### Chiusura connessione in corso... ###" + ANSI_RESET);
             ricezione.interrupt();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("### Impossibile contattare il server! ###");
         }
 
-        System.out.println("### Connessione chiusa con successo! ###");
+        System.out.println(ANSI_BLUE + "### Connessione chiusa con successo! ###" + ANSI_RESET);
         System.exit(0);
     }
-
 
 }

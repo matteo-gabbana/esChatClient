@@ -4,17 +4,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.Vector;
 
 public class GestoreClient extends Thread {
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+
     private Socket client;
-    private GestoreClient[] clients;
+    private Vector<GestoreClient> clients;
     private Scanner input;
     private PrintWriter output;
-    private int codice;
-    private boolean mioTurno = false;
+    private int mioIndice;
 
-    public GestoreClient(Socket connessione, GestoreClient[] clients) {
+    public GestoreClient(Socket connessione, Vector<GestoreClient> clients) {
 
         this.client = connessione;
         this.clients = clients;
@@ -25,83 +30,47 @@ public class GestoreClient extends Thread {
             e.printStackTrace();
         }
 
-        for (int i=0; i<2; i++) {
-            if (clients[i] == null) {
-                codice = i;
-                break;
-            }
-        }
-
-        if (codice == 0) {
-            mioTurno = true;
-        }
-
         start();
     }
 
     public void run() {
 
-        output.println("### Sei connesso - Scrivi \"STOP\" per uscire ###");
+        mioIndice = clients.indexOf(this);
+        output.println(ANSI_BLUE + "### Sei connesso come Client[" + mioIndice + "] - Scrivi 'STOP' per uscire ###\n" + ANSI_RESET);
 
-        while (clients[0] == null || clients[1] == null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        while (true) {
+                if (Server.getTurnoCorrente() == clients.indexOf(this)) {
+                    output.println(ANSI_YELLOW + "### E' il tuo turno - Scrivi un messaggio ###" + ANSI_RESET);
+                    String messaggio = input.nextLine();
 
-        if (mioTurno) {
-            output.println("### E' il tuo turno, scrivi un messaggio ###");
-        } else {
-            output.println("### Attendi il messaggio dell'altro client... ###");
-        }
+                    if (messaggio.equals("STOP")) {
+                        break;
+                    }
 
-        String messaggioRicevuto = "";
-        do {
-
-            if (mioTurno) {
-
-                int codiceDestinatario;
-                if (codice == 0) {
-                    codiceDestinatario = 1;
+                    Server.broadcast("Client[" + mioIndice + "]: " + messaggio);
+                    Server.passaTurno();
                 } else {
-                    codiceDestinatario = 0;
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-
-                output.println("Client [" + codiceDestinatario + "] (tu) >> ");
-                messaggioRicevuto = input.nextLine();
-
-                GestoreClient destinatario = clients[codiceDestinatario];
-                destinatario.inviaMessaggio(messaggioRicevuto);
-                this.mioTurno = false;
-                destinatario.setTurno(true);
-
-            } else {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        } while (!messaggioRicevuto.equals("STOP"));
+        }
 
         try {
-            System.out.println("### Chiusura connessione " + codice + " in corso... ###");
             client.close();
-            System.out.println("### Connessione chiusa con successo! ###\n");
         } catch (IOException e) {
-            System.out.println("### Impossibile chiudere la connessione! ###");
+            System.err.println("### Errore durante la disconnessione del client ###");
         }
+
+        Server.rimuoviClient(this);
+        Server.broadcast(ANSI_PURPLE + "### Client[" + mioIndice + "] si e' disconnesso ###" + ANSI_RESET);
+
     }
 
-    private void inviaMessaggio(String messaggio) {
-        output.println("Client [" + codice + "] << " + messaggio);
-    }
-
-    private void setTurno(boolean valore) {
-        mioTurno = valore;
+    public void inviaMessaggio(String messaggio) {
+        output.println(messaggio);
     }
 
 }
