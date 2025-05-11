@@ -13,6 +13,7 @@ public class GestoreClient extends Thread {
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_PURPLE = "\u001B[35m";
 
+    private String username;
     private Socket client;
     private Vector<GestoreClient> clients;
     private Scanner input;
@@ -35,8 +36,13 @@ public class GestoreClient extends Thread {
 
     public void run() {
 
+        output.println(ANSI_BLUE + "Inserisci il tuo username (tutto maiuscolo):" + ANSI_RESET);
+        username = input.nextLine().trim().toUpperCase();
+
+        Server.broadcast(ANSI_PURPLE + "### " + username + " si è unito alla chat ###\n" + ANSI_RESET);
+
         mioIndice = clients.indexOf(this);
-        output.println(ANSI_BLUE + "### Sei connesso come Client[" + mioIndice + "] - Scrivi 'STOP' per uscire ###\n" + ANSI_RESET);
+        output.println(ANSI_BLUE + "### Benvenuto nella chatroom, " + username + " - Scrivi 'STOP' per uscire ###" + ANSI_RESET);
 
         while (true) {
                 if (Server.getTurnoCorrente() == clients.indexOf(this)) {
@@ -47,7 +53,7 @@ public class GestoreClient extends Thread {
                         break;
                     }
 
-                    Server.broadcast("Client[" + mioIndice + "]: " + messaggio);
+                    Server.broadcast(username + ": " + messaggio);
                     Server.passaTurno();
                 } else {
                     try {
@@ -65,12 +71,16 @@ public class GestoreClient extends Thread {
         }
 
         Server.rimuoviClient(this);
-        Server.broadcast(ANSI_PURPLE + "### Client[" + mioIndice + "] si e' disconnesso ###" + ANSI_RESET);
+        Server.broadcast(ANSI_PURPLE + "### " + username + " si e' disconnesso ###" + ANSI_RESET);
 
     }
 
     public void inviaMessaggio(String messaggio) {
         output.println(messaggio);
+    }
+
+    public String getUsername() {
+        return username;
     }
 
 }

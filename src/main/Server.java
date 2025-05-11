@@ -52,7 +52,8 @@ public class Server {
                 GestoreClient nuovoClient = new GestoreClient(connessione, clients);
                 clients.add(nuovoClient);
                 clientConnessi++;
-                System.out.println(ANSI_CYAN + "### Nuovo client connesso: Client[" + clients.indexOf(nuovoClient) + "] ###\n" + ANSI_RESET);
+                System.out.println(ANSI_CYAN + "### Nuovo client connesso ###" + ANSI_RESET);
+                System.out.println(ANSI_PURPLE + "### Client connessi --> " + clientConnessi + " ###\n" + ANSI_RESET);
                 if (clientConnessi == 1 && primaConnessione) {
                     System.out.println(ANSI_PURPLE + "### Chatroom avviata! ###\n" + ANSI_RESET);
                     primaConnessione = false;
@@ -81,13 +82,15 @@ public class Server {
     }
 
     public static synchronized void rimuoviClient(GestoreClient client) {
-        System.out.println(ANSI_CYAN + "### Client disconnesso: Client[" + clients.indexOf(client) + "] ###\n" + ANSI_RESET);
-        int index = clients.indexOf(client);
         clients.remove(client);
-        if (index == turnoCorrente && !clients.isEmpty()) {
-            turnoCorrente %= clients.size();
-        }
         clientConnessi--;
+        if (!clients.isEmpty()) {
+            turnoCorrente %= clients.size();
+        } else {
+            turnoCorrente = 0;
+        }
+        System.out.println(ANSI_CYAN + "### " + client.getUsername() + " si e' disconnesso ###\n" + ANSI_RESET);
+        System.out.println(ANSI_PURPLE + "### Client connessi --> " + clientConnessi + " ###\n" + ANSI_RESET);
     }
 
 }
