@@ -18,7 +18,6 @@ public class GestoreClient extends Thread {
     private Vector<GestoreClient> clients;
     private Scanner input;
     private PrintWriter output;
-    private int mioIndice;
 
     public GestoreClient(Socket connessione, Vector<GestoreClient> clients) {
 
@@ -41,27 +40,20 @@ public class GestoreClient extends Thread {
 
         Server.broadcast(ANSI_PURPLE + "### " + username + " si è unito alla chat ###\n" + ANSI_RESET);
 
-        mioIndice = clients.indexOf(this);
         output.println(ANSI_BLUE + "### Benvenuto nella chatroom, " + username + " - Scrivi 'STOP' per uscire ###" + ANSI_RESET);
 
         while (true) {
-                if (Server.getTurnoCorrente() == clients.indexOf(this)) {
-                    output.println(ANSI_YELLOW + "### E' il tuo turno - Scrivi un messaggio ###" + ANSI_RESET);
+            try {
+                if (input.hasNextLine()) {
                     String messaggio = input.nextLine();
-
                     if (messaggio.equals("STOP")) {
                         break;
                     }
-
                     Server.broadcast(username + ": " + messaggio);
-                    Server.passaTurno();
-                } else {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
+            } catch (Exception e) {
+                break;
+            }
         }
 
         try {

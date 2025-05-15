@@ -29,7 +29,6 @@ public class Server {
     private static final int PORTA = 5959;
     private static Vector<GestoreClient> clients = new Vector<>();
     private static int clientConnessi = 0;
-    private static int turnoCorrente = 0;
 
     public static void main(String[] args) {
 
@@ -71,24 +70,9 @@ public class Server {
         }
     }
 
-    public static synchronized int getTurnoCorrente() {
-        return turnoCorrente;
-    }
-
-    public static synchronized void passaTurno() {
-        if (!clients.isEmpty()) {
-            turnoCorrente = (turnoCorrente + 1) % clients.size();
-        }
-    }
-
     public static synchronized void rimuoviClient(GestoreClient client) {
         clients.remove(client);
         clientConnessi--;
-        if (!clients.isEmpty()) {
-            turnoCorrente %= clients.size();
-        } else {
-            turnoCorrente = 0;
-        }
         System.out.println(ANSI_CYAN + "### " + client.getUsername() + " si e' disconnesso ###\n" + ANSI_RESET);
         System.out.println(ANSI_PURPLE + "### Client connessi --> " + clientConnessi + " ###\n" + ANSI_RESET);
     }
