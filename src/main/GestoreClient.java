@@ -9,7 +9,6 @@ import java.util.Vector;
 public class GestoreClient extends Thread {
 
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_PURPLE = "\u001B[35m";
 
@@ -38,7 +37,7 @@ public class GestoreClient extends Thread {
         output.println(ANSI_BLUE + "Inserisci il tuo username (tutto maiuscolo):" + ANSI_RESET);
         username = input.nextLine().trim().toUpperCase();
 
-        Server.broadcast(ANSI_PURPLE + "### " + username + " si è unito alla chat ###\n" + ANSI_RESET);
+        Server.broadcast(ANSI_PURPLE + "### " + username + " si è unito alla chat ###\n" + ANSI_RESET, this);
 
         output.println(ANSI_BLUE + "### Benvenuto nella chatroom, " + username + " - Scrivi 'STOP' per uscire ###" + ANSI_RESET);
 
@@ -49,7 +48,7 @@ public class GestoreClient extends Thread {
                     if (messaggio.equals("STOP")) {
                         break;
                     }
-                    Server.broadcast(username + ": " + messaggio);
+                    Server.broadcast(username + ": " + messaggio, this);
                 }
             } catch (Exception e) {
                 break;
@@ -63,7 +62,7 @@ public class GestoreClient extends Thread {
         }
 
         Server.rimuoviClient(this);
-        Server.broadcast(ANSI_PURPLE + "### " + username + " si e' disconnesso ###" + ANSI_RESET);
+        Server.broadcast(ANSI_PURPLE + "### " + username + " si e' disconnesso ###" + ANSI_RESET, this);
 
     }
 

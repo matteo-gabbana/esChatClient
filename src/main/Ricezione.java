@@ -13,6 +13,7 @@ public class Ricezione extends Thread {
     }
 
     public void run() {
+
         while (true) {
             if (input.hasNextLine()) {
                 String messaggioRicevuto = input.nextLine();

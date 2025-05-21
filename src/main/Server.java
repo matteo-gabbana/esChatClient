@@ -64,9 +64,11 @@ public class Server {
 
     }
 
-    public static synchronized void broadcast(String messaggio) {
+    public static synchronized void broadcast(String messaggio, GestoreClient trasmettitore) {
         for (GestoreClient client : clients) {
-            client.inviaMessaggio(messaggio);
+            if (client != trasmettitore) {
+                client.inviaMessaggio(messaggio);
+            }
         }
     }
 
